@@ -1,5 +1,7 @@
 # FlowForge ◆ Visual LLM Pipelines
 
+**🕹️ Live demo: [flowforge-sigma-eosin.vercel.app](https://flowforge-sigma-eosin.vercel.app)** — no signup, no API key needed. *(First run may take ~30s while the free-tier backend wakes up.)*
+
 A drag-and-drop pipeline builder for LLM workflows — with **real execution**,
 per-node observability, a built-in **teaching mode for complete beginners**,
 and a Pixel-Arcade UI. Build a graph of nodes, wire them together, hit
