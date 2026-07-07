@@ -225,3 +225,27 @@ def test_generate_respects_max_tokens_cap():
     out = providers.generate("GPT-4o", 0.7, 16,
                              system="", prompt="word " * 500, log=log)
     assert len(out) <= len("⟨GPT-4o · simulated⟩ ") + 16 * 4 + 1
+
+
+def test_execute_file_upload_uses_real_browser_content():
+    nodes = [
+        _node("f-1", "fileUpload",
+              file={"name": "notes.txt", "size": 42,
+                    "content": "FlowForge pipelines execute in topological order."}),
+        _node("out-1", "customOutput", outputName="doc"),
+    ]
+    edges = [_edge("f-1", "out-1", "f-1-file", "out-1-value")]
+    body = client.post("/pipelines/execute", json={"nodes": nodes, "edges": edges}).json()
+    assert body["final_outputs"][0]["value"] == \
+        "FlowForge pipelines execute in topological order."
+    assert any("real text" in l for l in body["node_results"]["f-1"]["logs"])
+
+
+def test_execute_file_upload_without_content_falls_back_to_simulation():
+    nodes = [
+        _node("f-1", "fileUpload", file={"name": "report.pdf", "size": 999}),
+        _node("out-1", "customOutput", outputName="doc"),
+    ]
+    edges = [_edge("f-1", "out-1", "f-1-file", "out-1-value")]
+    body = client.post("/pipelines/execute", json={"nodes": nodes, "edges": edges}).json()
+    assert "Simulated extracted text" in body["final_outputs"][0]["value"]

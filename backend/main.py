@@ -201,7 +201,13 @@ def _run_file_upload(data, inputs, log):
         log.append("no file attached — emitting empty document")
         return {"file": ""}
     name = file.get("name", "file")
-    log.append(f"loaded '{name}' ({file.get('size', 0)} bytes, simulated contents)")
+    content = file.get("content")
+    if content:
+        log.append(f"loaded '{name}' — {len(str(content))} chars of real text "
+                   f"extracted in the browser")
+        return {"file": str(content)}
+    log.append(f"'{name}' isn't a plain-text file — text extraction only covers "
+               f".txt/.md/.csv/.json for now; using simulated contents")
     return {"file": f"[document '{name}'] Simulated extracted text: "
                     f"This document discusses pipelines, retrieval and automation. "
                     f"It was uploaded as {name}."}

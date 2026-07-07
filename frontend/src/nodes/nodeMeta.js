@@ -68,7 +68,7 @@ export const NODE_META = {
     label: "FILE",    color: "#38bdf8", icon: "▤",
     info: {
       description:
-        "Lets the user attach a file (PDF, TXT, MD, CSV, JSON, DOCX). The file is then available to downstream nodes that can read it.",
+        "Lets the user attach a file. Plain-text files (TXT, MD, CSV, JSON) are read right in your browser and their REAL contents flow into the pipeline; other types (PDF, DOCX) pass simulated text for now.",
       inputs: [],
       outputs: [
         { label: "File", desc: "The uploaded file's contents, ready for any node that processes documents." },

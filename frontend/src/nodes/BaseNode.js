@@ -159,7 +159,23 @@ const Field = ({ field, value, onChange }) => {
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (!f) return;
-              onChange(field.key, { name: f.name, size: f.size, type: f.type });
+              const meta = { name: f.name, size: f.size, type: f.type };
+              const isText =
+                /\.(txt|md|csv|json|log)$/i.test(f.name) ||
+                (f.type || "").startsWith("text/") ||
+                f.type === "application/json";
+              if (isText) {
+                const reader = new FileReader();
+                reader.onload = () =>
+                  onChange(field.key, {
+                    ...meta,
+                    // cap so autosave/localStorage stays healthy
+                    content: String(reader.result || "").slice(0, 200000),
+                  });
+                reader.readAsText(f);
+              } else {
+                onChange(field.key, meta);
+              }
             }}
           />
           {file ? "REPLACE FILE" : "CHOOSE FILE"}
