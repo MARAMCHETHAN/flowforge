@@ -10,10 +10,11 @@ runners), engine.py (the execution loop), providers.py (LLM APIs).
 """
 
 import os
-from collections import Counter
+import time
+from collections import Counter, defaultdict, deque
 from typing import Any, Dict, List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -41,6 +42,36 @@ app.add_middleware(
 class PipelineData(BaseModel):
     nodes: List[Any]
     edges: List[Any]
+
+
+# ── Rate limiting ────────────────────────────────────────────────────
+# The execute endpoint spends our LLM quota, and this API is public.
+# Simple in-memory sliding window per client IP (fine for one instance).
+RATE_LIMIT_RUNS = int(os.environ.get("RATE_LIMIT_RUNS", "10"))
+RATE_LIMIT_WINDOW_S = int(os.environ.get("RATE_LIMIT_WINDOW_S", "60"))
+_hits: Dict[str, deque] = defaultdict(deque)
+
+
+def _client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:  # behind Render's proxy the real IP is the first entry
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def enforce_rate_limit(request: Request) -> None:
+    now = time.monotonic()
+    window = _hits[_client_ip(request)]
+    while window and now - window[0] > RATE_LIMIT_WINDOW_S:
+        window.popleft()
+    if len(window) >= RATE_LIMIT_RUNS:
+        raise HTTPException(
+            status_code=429,
+            detail=(f"Rate limit: {RATE_LIMIT_RUNS} runs per "
+                    f"{RATE_LIMIT_WINDOW_S}s per client. Take a short break "
+                    f"and run again."),
+        )
+    window.append(now)
 
 
 def _build_warnings(
@@ -171,5 +202,6 @@ def parse_pipeline(data: PipelineData):
 
 
 @app.post("/pipelines/execute")
-def execute_pipeline(data: PipelineData):
+def execute_pipeline(data: PipelineData, request: Request):
+    enforce_rate_limit(request)
     return engine.execute(data.nodes, data.edges)

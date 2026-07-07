@@ -56,7 +56,7 @@ export const SubmitButton = () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nodes, edges }),
           });
-          if (res.ok) break;
+          if (res.ok || res.status === 429) break;
         } catch {
           res = null;
         }
@@ -66,6 +66,15 @@ export const SubmitButton = () => {
         }
       }
       setWaking(false);
+      if (res && res.status === 429) {
+        const body = await res.json().catch(() => ({}));
+        setResult({
+          error:
+            body.detail ||
+            "You're running pipelines very fast — take a short break and try again.",
+        });
+        return;
+      }
       if (!res || !res.ok) {
         throw new Error(`Server responded ${res ? res.status : "not at all"}`);
       }

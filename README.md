@@ -9,7 +9,9 @@ per-node observability, a built-in **teaching mode for complete beginners**,
 and a Pixel-Arcade UI. Build a graph of nodes, wire them together, hit
 **► RUN PIPELINE**, and watch data flow through it in topological order.
 
-![Learn Mode](docs/screenshots/learn-mode.png)
+![FlowForge demo: Learn Mode guides a beginner from empty canvas to a live Gemini answer](docs/demo.gif)
+
+*The whole journey in 15 seconds: Learn Mode guides you node by node, then a real Gemini answer arrives with a plain-English explanation of every step.*
 
 ## Why another node-canvas app?
 

@@ -249,3 +249,16 @@ def test_execute_file_upload_without_content_falls_back_to_simulation():
     edges = [_edge("f-1", "out-1", "f-1-file", "out-1-value")]
     body = client.post("/pipelines/execute", json={"nodes": nodes, "edges": edges}).json()
     assert "Simulated extracted text" in body["final_outputs"][0]["value"]
+
+
+def test_execute_rate_limit_kicks_in(monkeypatch):
+    import main as main_module
+    monkeypatch.setattr(main_module, "RATE_LIMIT_RUNS", 3)
+    main_module._hits.clear()
+    payload = {"nodes": [_node("n", "note")], "edges": []}
+    for _ in range(3):
+        assert client.post("/pipelines/execute", json=payload).status_code == 200
+    resp = client.post("/pipelines/execute", json=payload)
+    assert resp.status_code == 429
+    assert "Rate limit" in resp.json()["detail"]
+    main_module._hits.clear()  # don't poison other tests

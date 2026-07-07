@@ -1,0 +1,14 @@
+# Ping the free-tier backend every 10 minutes so visitors rarely hit a
+# cold start. GitHub cron is best-effort; misses are harmless.
+name: Keep backend warm
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -sf -m 60 https://flowforge-api-x2a9.onrender.com/ || true
