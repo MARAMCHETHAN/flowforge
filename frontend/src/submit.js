@@ -4,7 +4,8 @@ import { useShallow } from "zustand/react/shallow";
 import { useStore } from "./store";
 import { NODE_META } from "./nodes/nodeMeta";
 
-const EXECUTE_URL = "http://localhost:8000/pipelines/execute";
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const EXECUTE_URL = `${API_BASE}/pipelines/execute`;
 
 const selector = (state) => ({
   nodes: state.nodes,
@@ -313,7 +314,7 @@ export const SubmitButton = () => {
     } catch (err) {
       setResult({
         error:
-          "Could not reach the backend. Make sure FastAPI is running on http://localhost:8000.",
+          `Could not reach the backend at ${API_BASE}. Is the FastAPI server running?`,
       });
     } finally {
       setLoading(false);

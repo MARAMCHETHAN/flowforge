@@ -1,0 +1,19 @@
+# Render blueprint — deploys the FastAPI backend.
+# In the Render dashboard: New + → Blueprint → point at this repo.
+services:
+  - type: web
+    name: flowforge-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: ALLOWED_ORIGINS      # set to your Vercel URL after frontend deploy
+        sync: false
+      - key: GEMINI_API_KEY       # optional — live LLM calls
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
