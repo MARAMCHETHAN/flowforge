@@ -1,5 +1,7 @@
 # FlowForge ◆ Visual LLM Pipelines
 
+[![CI](https://github.com/MARAMCHETHAN/flowforge/actions/workflows/ci.yml/badge.svg)](https://github.com/MARAMCHETHAN/flowforge/actions/workflows/ci.yml)
+
 **🕹️ Live demo: [flowforge-sigma-eosin.vercel.app](https://flowforge-sigma-eosin.vercel.app)** — no signup, no API key needed. *(First run may take ~30s while the free-tier backend wakes up.)*
 
 A drag-and-drop pipeline builder for LLM workflows — with **real execution**,
@@ -77,7 +79,8 @@ export ANTHROPIC_API_KEY=...   # and/or OPENAI_API_KEY, GEMINI_API_KEY
 ## Tests
 
 ```bash
-cd backend && pytest test_main.py -v   # 17 tests: DAG validation, execution, providers
+cd backend && pytest test_main.py -v          # 19 tests: DAG, execution, providers
+cd frontend && npm test -- --watchAll=false   # 9 tests: variable parsing, run narration
 ```
 
 ## Architecture

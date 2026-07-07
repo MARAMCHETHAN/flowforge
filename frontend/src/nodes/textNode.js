@@ -3,20 +3,7 @@ import { useStore } from "../store";
 import { BaseNode } from "./BaseNode";
 import { NODE_META } from "./nodeMeta";
 
-const VAR_REGEX = /\{\{\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\}\}/g;
-
-const extractVariables = (text) => {
-  const seen = new Set();
-  const out = [];
-  let m;
-  while ((m = VAR_REGEX.exec(text)) !== null) {
-    if (!seen.has(m[1])) {
-      seen.add(m[1]);
-      out.push(m[1]);
-    }
-  }
-  return out;
-};
+import { extractVariables } from "../utils/variables";
 
 export const TextNode = ({ id, data }) => {
   const updateNodeField = useStore((s) => s.updateNodeField);

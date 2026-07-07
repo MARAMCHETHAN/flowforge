@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { addEdge, applyNodeChanges, applyEdgeChanges } from "reactflow";
 
+import { extractVariables } from "./utils/variables";
+
 const LS_KEY = "flowforge-pipeline-v1";
 const HISTORY_LIMIT = 50;
 const SNAPSHOT_DEBOUNCE = 400;
@@ -267,10 +269,7 @@ export const useStore = create((set, get) => ({
     // Text node variables ARE its input handles: when the text changes,
     // prune edges into handles that no longer exist.
     if (node?.type === "text" && fieldName === "text") {
-      const varRegex = /\{\{\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\}\}/g;
-      const live = new Set();
-      let m;
-      while ((m = varRegex.exec(fieldValue)) !== null) live.add(m[1]);
+      const live = new Set(extractVariables(fieldValue));
       edges = edges.filter((e) => {
         if (e.target !== nodeId) return true;
         const suffix = (e.targetHandle || "").slice(nodeId.length + 1);
