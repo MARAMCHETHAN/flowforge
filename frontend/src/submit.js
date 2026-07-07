@@ -262,6 +262,7 @@ export const SubmitButton = () => {
     updateNodeField,
   } = useStore(useShallow(selector));
   const [loading, setLoading] = useState(false);
+  const [waking, setWaking] = useState(false);
   const [result, setResult] = useState(null);
 
   const nodeTypeById = {};
@@ -273,14 +274,32 @@ export const SubmitButton = () => {
 
   const onSubmit = useCallback(async () => {
     setLoading(true);
+    setWaking(false);
     clearRunStatuses();
     try {
-      const res = await fetch(EXECUTE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nodes, edges }),
-      });
-      if (!res.ok) throw new Error(`Server responded ${res.status}`);
+      // Free-tier hosting sleeps when idle and 5xx's while waking:
+      // retry a few times with a visible "waking" status instead of failing.
+      let res = null;
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        try {
+          res = await fetch(EXECUTE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nodes, edges }),
+          });
+          if (res.ok) break;
+        } catch {
+          res = null;
+        }
+        if (attempt < 5) {
+          setWaking(true);
+          await sleep(8000);
+        }
+      }
+      setWaking(false);
+      if (!res || !res.ok) {
+        throw new Error(`Server responded ${res ? res.status : "not at all"}`);
+      }
       const data = await res.json();
 
       if (data.status === "success") {
@@ -314,7 +333,7 @@ export const SubmitButton = () => {
     } catch (err) {
       setResult({
         error:
-          `Could not reach the backend at ${API_BASE}. Is the FastAPI server running?`,
+          `The backend at ${API_BASE} isn't responding. On free hosting the server sleeps when idle — give it ~30 seconds and press RUN again.`,
       });
     } finally {
       setLoading(false);
@@ -333,7 +352,7 @@ export const SubmitButton = () => {
           {loading ? (
             <>
               <span className="vs-spinner" />
-              RUNNING…
+              {waking ? "WAKING SERVER… (FREE HOSTING)" : "RUNNING…"}
             </>
           ) : (
             <>► RUN PIPELINE</>
