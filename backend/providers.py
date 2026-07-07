@@ -18,6 +18,7 @@ Env keys:
 
 import os
 import re
+import time
 from typing import List, Optional, Tuple
 
 try:
@@ -114,7 +115,7 @@ def _call_gemini(key: str, model_id: str, temperature: float,
         body["system_instruction"] = {"parts": [{"text": system}]}
     r = httpx.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent",
-        params={"key": key},
+        headers={"x-goog-api-key": key},
         json=body,
         timeout=TIMEOUT,
     )
@@ -181,13 +182,23 @@ def generate(model: str, temperature: float, max_tokens: int,
     key = _api_key(provider)
 
     if provider != "simulation" and key and httpx is not None and prompt:
-        try:
-            text = _CALLERS[provider](key, api_model_id, temperature,
-                                      max_tokens, system, prompt)
-            log.append(f"live response from {provider} ({api_model_id})")
-            return text
-        except Exception as exc:
-            log.append(f"{provider} call failed ({exc}) — falling back to simulation")
+        for attempt in (1, 2):
+            try:
+                text = _CALLERS[provider](key, api_model_id, temperature,
+                                          max_tokens, system, prompt)
+                log.append(f"live response from {provider} ({api_model_id})")
+                return text
+            except Exception as exc:
+                # Never log str(exc): it can contain the request URL/headers.
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                reason = f"HTTP {status}" if status else exc.__class__.__name__
+                transient = status in (429, 500, 502, 503, 504)
+                if transient and attempt == 1:
+                    log.append(f"{provider} returned {reason} — retrying once")
+                    time.sleep(1.5)
+                    continue
+                log.append(f"{provider} call failed ({reason}) — falling back to simulation")
+                break
     elif provider != "simulation" and not key:
         env = _KEY_ENV[provider][0]
         log.append(f"no {env} set — using simulation")
