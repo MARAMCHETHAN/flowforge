@@ -146,8 +146,8 @@ export const LearnPanel = () => {
           </p>
           <p className="vs-learn-why">
             Keep exploring: press <b>{MOD_K}</b> and insert the <b>RAG Pipeline</b>{" "}
-            template, type <b>{"{{variables}}"}</b> inside a Text node, or click
-            any node's <b>ⓘ</b> button to learn what it does.
+            template, type <b>{"{{variables}}"}</b> inside a Text node, or hit{" "}
+            <b>⚯ SHARE</b> to send your pipeline to a friend as a link.
           </p>
           <button className="vs-learn-restart" onClick={close}>
             FINISH

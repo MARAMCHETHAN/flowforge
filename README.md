@@ -49,6 +49,7 @@ Most pipeline-builder demos stop at drawing the graph. FlowForge runs it:
 | 9 node types | Input, Output, Text, LLM, File, Prompt Template, Vector Search, Router, Note |
 | Config-driven nodes | One `BaseNode` renders everything — a new node type is ~30 lines |
 | Dynamic handles | Type `{{variable}}` in a Text node and an input handle appears live |
+| ⚯ Share via link | The whole pipeline compresses into the URL — no accounts, links never expire |
 | ⌘K command palette | Add nodes and insert templates from the keyboard |
 | Templates | RAG pipeline, Summarization, Classifier — one click |
 | Undo / redo + autosave | Debounced history (50 steps) persisted to localStorage |

@@ -3,6 +3,7 @@ import { DraggableNode } from "./draggableNode";
 import { NODE_META, TOOLBAR_ORDER } from "./nodes/nodeMeta";
 import { useStore } from "./store";
 import { TEMPLATES } from "./templates";
+import { encodePipeline, shareUrl } from "./utils/share";
 
 const relativeTime = (ts) => {
   if (!ts) return null;
@@ -203,6 +204,35 @@ const ActionsMenu = () => {
   );
 };
 
+const ShareButton = () => {
+  const nodes = useStore((s) => s.nodes);
+  const edges = useStore((s) => s.edges);
+  const [copied, setCopied] = useState(false);
+
+  const onShare = async () => {
+    const encoded = await encodePipeline(nodes, edges);
+    const url = shareUrl(encoded);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      window.prompt("Copy this link:", url); // clipboard blocked — show it
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      className="vs-pixel-btn"
+      onClick={onShare}
+      disabled={nodes.length === 0}
+      title="Copy a link that contains this whole pipeline"
+    >
+      {copied ? "✓ COPIED!" : "⚯ SHARE"}
+    </button>
+  );
+};
+
 export const PipelineToolbar = () => {
   const [query, setQuery] = useState("");
   const setLearnOpen = useStore((s) => s.setLearnOpen);
@@ -253,6 +283,7 @@ export const PipelineToolbar = () => {
           🎓 LEARN
         </button>
         <SavedIndicator />
+        <ShareButton />
         <TemplatesMenu />
         <ActionsMenu />
       </div>
