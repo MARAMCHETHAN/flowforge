@@ -1788,3 +1788,131 @@ body::before {
   color: var(--purple);
   font-weight: bold;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Learn Mode — guided tutorial quest log
+   ═══════════════════════════════════════════════════════════ */
+
+.vs-learn {
+  position: fixed;
+  left: 16px;
+  bottom: 76px;
+  z-index: 40;
+  width: 320px;
+  background: var(--win-body);
+  border: 2px solid var(--win-border);
+  box-shadow: 6px 6px 0 var(--win-shadow);
+  color: var(--text);
+}
+
+.vs-learn-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--butter);
+  border-bottom: 2px solid var(--win-border);
+}
+
+.vs-learn-title {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  flex: 1;
+}
+
+.vs-learn-progress {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.vs-learn-x {
+  border: 2px solid var(--win-border);
+  background: var(--win-body);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--win-shadow);
+}
+
+.vs-learn-body {
+  padding: 10px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+.vs-learn-step {
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border: 2px dashed transparent;
+}
+
+.vs-learn-step-current {
+  border-color: var(--hot-pink);
+  background: var(--win-body-dim);
+}
+
+.vs-learn-step-done { opacity: 0.55; }
+
+.vs-learn-step-title {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  line-height: 1.6;
+  display: flex;
+  gap: 8px;
+}
+
+.vs-learn-check { color: var(--lime-deep); width: 12px; }
+
+.vs-learn-step-current .vs-learn-check { color: var(--hot-pink); }
+
+.vs-learn-hint {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.35;
+  margin-top: 6px;
+}
+
+.vs-learn-why {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.vs-learn-done {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.vs-learn-restart {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px;
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  background: var(--lime);
+  border: 2px solid var(--win-border);
+  box-shadow: 3px 3px 0 var(--win-shadow);
+  cursor: pointer;
+}
+
+/* ── Plain-English run story ── */
+
+.vs-story {
+  margin: 0;
+  padding-left: 22px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.vs-story-line { margin-bottom: 4px; }

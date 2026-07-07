@@ -17,6 +17,67 @@ const selector = (state) => ({
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Plain-English narration of a run — one sentence per node, for people
+// who have never seen a pipeline before.
+const buildStory = (data, nodesById) => {
+  if (data.status !== "success") return [];
+  const story = [];
+  for (const nid of data.execution_order || []) {
+    const r = data.node_results?.[nid];
+    const node = nodesById[nid];
+    if (!r || !node) continue;
+    const d = node.data || {};
+    const logs = (r.logs || []).join(" ");
+    if (r.status === "skipped") {
+      if (node.type === "note") continue;
+      story.push(`${nid} was skipped — no data reached it (it sits on the path not taken).`);
+      continue;
+    }
+    if (r.status === "error") {
+      story.push(`${nid} hit an error — open its row in the trace below.`);
+      continue;
+    }
+    switch (node.type) {
+      case "customInput":
+        story.push(`The INPUT node “${d.inputName || nid}” handed your text to the pipeline.`);
+        break;
+      case "fileUpload":
+        story.push(`The FILE node loaded “${d.file?.name || "your file"}”.`);
+        break;
+      case "text":
+        story.push(`The TEXT node filled in its {{variables}} and passed the result on.`);
+        break;
+      case "promptTemplate":
+        story.push(`The PROMPT node built the instructions for the AI.`);
+        break;
+      case "llm": {
+        const sim = logs.includes("simulation");
+        story.push(
+          `The LLM node sent the prompt to ${d.model || "the AI"}` +
+            (sim
+              ? " — simulated response (add an API key for a real one)."
+              : " and got a live response.")
+        );
+        break;
+      }
+      case "vectorSearch":
+        story.push(`The VECTOR node searched the knowledge base and kept the best matches.`);
+        break;
+      case "router": {
+        const branch = logs.includes("TRUE branch") ? "TRUE" : "FALSE";
+        story.push(`The ROUTER tested its condition and sent the data down the ${branch} path.`);
+        break;
+      }
+      case "customOutput":
+        story.push(`The OUTPUT node “${d.outputName || nid}” displayed the final answer.`);
+        break;
+      default:
+        break;
+    }
+  }
+  return story;
+};
+
 const STATUS_ICONS = {
   executed: "✓",
   skipped: "⤫",
@@ -60,7 +121,7 @@ const TraceRow = ({ nodeId, result, nodeType }) => {
   );
 };
 
-const Modal = ({ result, nodeTypeById, onClose }) => {
+const Modal = ({ result, story, nodeTypeById, onClose }) => {
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -131,6 +192,17 @@ const Modal = ({ result, nodeTypeById, onClose }) => {
                 </p>
               )}
 
+              {story.length > 0 && (
+                <div className="vs-run-section">
+                  <div className="vs-run-section-title">▸ WHAT HAPPENED (PLAIN ENGLISH)</div>
+                  <ol className="vs-story">
+                    {story.map((line, i) => (
+                      <li key={i} className="vs-story-line">{line}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
               {finals.length > 0 && (
                 <div className="vs-run-section">
                   <div className="vs-run-section-title">▸ OUTPUTS</div>
@@ -192,7 +264,11 @@ export const SubmitButton = () => {
   const [result, setResult] = useState(null);
 
   const nodeTypeById = {};
-  for (const n of nodes) nodeTypeById[n.id] = n.type;
+  const nodesById = {};
+  for (const n of nodes) {
+    nodeTypeById[n.id] = n.type;
+    nodesById[n.id] = n;
+  }
 
   const onSubmit = useCallback(async () => {
     setLoading(true);
@@ -266,6 +342,7 @@ export const SubmitButton = () => {
       {result && (
         <Modal
           result={result}
+          story={buildStory(result, nodesById)}
           nodeTypeById={nodeTypeById}
           onClose={() => setResult(null)}
         />

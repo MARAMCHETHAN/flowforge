@@ -68,8 +68,9 @@ mutation) — the argument for smoke tests over "it compiled".
 2. **History is O(graph) per snapshot** — deep clones. At ~50 entries ×
    small graphs it's nothing; at 10k nodes you'd move to structural sharing
    (immer patches) or command-based undo.
-3. **Edges to deleted `{{variables}}`** linger in data until the next
-   graph operation; a pruning pass on variable change is the fix.
+3. **Fixed since first writing:** edges into deleted `{{variable}}` handles
+   are now pruned automatically when the Text node's content changes
+   (see `updateNodeField` in `store.js`).
 4. **No auth / rate limiting** on the API — dev scope.
 5. **`localStorage` is per-browser** — real persistence means a backend
    save endpoint; Export/Import JSON is the interim answer.

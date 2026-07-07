@@ -1,6 +1,7 @@
 import { PipelineToolbar } from "./toolbar";
 import { PipelineUI } from "./ui";
 import { SubmitButton } from "./submit";
+import { LearnPanel } from "./learnMode";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <PipelineToolbar />
       <PipelineUI />
       <SubmitButton />
+      <LearnPanel />
     </div>
   );
 }

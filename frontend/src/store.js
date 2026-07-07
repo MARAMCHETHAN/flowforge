@@ -52,6 +52,10 @@ export const useStore = create((set, get) => ({
   edges: initialEdges,
   nodeIDs: initialNodeIDs,
 
+  // ── Learn Mode (guided tutorial) ─────────────────────────
+  learnOpen: false,
+  setLearnOpen: (open) => set({ learnOpen: open }),
+
   // ── Execution run state (not persisted) ─────────────────
   // { [nodeId]: "running" | "executed" | "skipped" | "error" }
   runStatuses: {},
@@ -257,11 +261,29 @@ export const useStore = create((set, get) => ({
   },
 
   updateNodeField: (nodeId, fieldName, fieldValue) => {
+    const node = get().nodes.find((n) => n.id === nodeId);
+    let edges = get().edges;
+
+    // Text node variables ARE its input handles: when the text changes,
+    // prune edges into handles that no longer exist.
+    if (node?.type === "text" && fieldName === "text") {
+      const varRegex = /\{\{\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\}\}/g;
+      const live = new Set();
+      let m;
+      while ((m = varRegex.exec(fieldValue)) !== null) live.add(m[1]);
+      edges = edges.filter((e) => {
+        if (e.target !== nodeId) return true;
+        const suffix = (e.targetHandle || "").slice(nodeId.length + 1);
+        return live.has(suffix);
+      });
+    }
+
     set({
-      nodes: get().nodes.map((node) =>
-        node.id === nodeId
-          ? { ...node, data: { ...node.data, [fieldName]: fieldValue } }
-          : node
+      edges,
+      nodes: get().nodes.map((n) =>
+        n.id === nodeId
+          ? { ...n, data: { ...n.data, [fieldName]: fieldValue } }
+          : n
       ),
     });
     get().scheduleSnapshot();

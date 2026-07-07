@@ -205,6 +205,7 @@ const ActionsMenu = () => {
 
 export const PipelineToolbar = () => {
   const [query, setQuery] = useState("");
+  const setLearnOpen = useStore((s) => s.setLearnOpen);
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -244,6 +245,13 @@ export const PipelineToolbar = () => {
       </div>
 
       <div className="vs-toolbar-meta">
+        <button
+          className="vs-pixel-btn"
+          onClick={() => setLearnOpen(true)}
+          title="Step-by-step guided tutorial for beginners"
+        >
+          🎓 LEARN
+        </button>
         <SavedIndicator />
         <TemplatesMenu />
         <ActionsMenu />
