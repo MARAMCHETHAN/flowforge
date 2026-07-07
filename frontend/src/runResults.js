@@ -188,6 +188,16 @@ export const RunResultsModal = ({ result, story, nodeTypeById, onClose }) => {
                 </div>
               )}
 
+              {result.status === "success" && finals.length === 0 && (
+                <div className="vs-run-section">
+                  <div className="vs-run-section-title">▸ OUTPUTS</div>
+                  <p className="vs-run-hint">
+                    Nothing arrived at an OUTPUT node. Add a ◆ OUTPUT node and
+                    connect your last node to it — that's where results appear.
+                  </p>
+                </div>
+              )}
+
               {finals.length > 0 && (
                 <div className="vs-run-section">
                   <div className="vs-run-section-title">▸ OUTPUTS</div>

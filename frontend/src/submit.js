@@ -116,6 +116,11 @@ export const SubmitButton = () => {
           className="vs-submit-btn"
           onClick={onSubmit}
           disabled={loading || nodes.length === 0}
+          title={
+            nodes.length === 0
+              ? "Add a node first — the 🎓 LEARN guide shows you how"
+              : "Validate and run this pipeline"
+          }
           type="button"
         >
           {loading ? (

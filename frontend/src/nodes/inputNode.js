@@ -27,7 +27,7 @@ export const InputNode = ({ id, data }) => (
         {
           type: "textarea",
           key: "value",
-          label: "Default Value",
+          label: "Text to send",
           default: "",
         },
       ],

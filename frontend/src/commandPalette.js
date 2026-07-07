@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useReactFlow } from "reactflow";
 import { NODE_META, TOOLBAR_ORDER } from "./nodes/nodeMeta";
 import { useStore } from "./store";
+import { MOD_K } from "./utils/platform";
 import { TEMPLATES } from "./templates";
 
 // Cmd+K palette. Two action types:
@@ -169,7 +170,7 @@ export const CommandPalette = () => {
         </div>
         <div className="vs-cmdk-footer">
           <span>FLOWFORGE COMMAND</span>
-          <span>⌘K toggles</span>
+          <span>{MOD_K} toggles</span>
         </div>
       </div>
     </div>,

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useStore } from "./store";
+import { MOD_K } from "./utils/platform";
 
 const LS_KEY = "flowforge-learn-v1";
 
@@ -26,7 +27,7 @@ const STEPS = [
   {
     id: "add-input",
     title: "Add an INPUT node",
-    hint: "Drag the ▶ INPUT chip from the top bar onto the canvas (or press ⌘K and type “input”).",
+    hint: `Click (or drag) the ▶ INPUT chip in the top bar — or press ${MOD_K} and type “input”.`,
     why: "Every pipeline starts with data. An Input node is the door where your text enters.",
     check: ({ nodes }) => nodes.some((n) => n.type === "customInput"),
   },
@@ -40,12 +41,15 @@ const STEPS = [
   {
     id: "connect-input-llm",
     title: "Connect INPUT → LLM",
-    hint: "Drag from the dot on the Input's right edge to the “Prompt” dot on the LLM's left edge.",
-    why: "Edges are pipes: whatever comes out of Input flows into the LLM as its prompt (its instructions).",
+    hint: "Drag from the dot on the Input's right edge to the LOWER dot (“Prompt”) on the LLM's left edge. Made a wrong wire? Double-click it to delete it.",
+    why: "Edges are pipes: whatever comes out of Input flows into the LLM as its prompt (its instructions). The upper “System” dot sets the AI's personality instead.",
     check: ({ nodes, edges }) => {
       const typeOf = Object.fromEntries(nodes.map((n) => [n.id, n.type]));
       return edges.some(
-        (e) => typeOf[e.source] === "customInput" && typeOf[e.target] === "llm"
+        (e) =>
+          typeOf[e.source] === "customInput" &&
+          typeOf[e.target] === "llm" &&
+          (e.targetHandle || "").endsWith("-prompt")
       );
     },
   },
@@ -67,7 +71,7 @@ const STEPS = [
   {
     id: "give-value",
     title: "Type something into the Input",
-    hint: "Click inside the Input node's “Default Value” box and write anything — try “Summarize: robots are learning to cook.”",
+    hint: "Click inside the Input node's “Text to send” box and write anything — try “Summarize: robots are learning to cook.”",
     why: "This is the actual data your pipeline will process when it runs.",
     check: ({ nodes }) =>
       nodes.some(
@@ -141,7 +145,7 @@ export const LearnPanel = () => {
             in dependency order, with every step traced.
           </p>
           <p className="vs-learn-why">
-            Keep exploring: press <b>⌘K</b> and insert the <b>RAG Pipeline</b>{" "}
+            Keep exploring: press <b>{MOD_K}</b> and insert the <b>RAG Pipeline</b>{" "}
             template, type <b>{"{{variables}}"}</b> inside a Text node, or click
             any node's <b>ⓘ</b> button to learn what it does.
           </p>

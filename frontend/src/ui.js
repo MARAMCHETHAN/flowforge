@@ -9,6 +9,7 @@ import ReactFlow, {
 import { useShallow } from "zustand/react/shallow";
 
 import { useStore } from "./store";
+import { MOD_K } from "./utils/platform";
 import { NODE_META } from "./nodes/nodeMeta";
 import { CommandPalette } from "./commandPalette";
 import { InputNode } from "./nodes/inputNode";
@@ -43,6 +44,8 @@ const selector = (state) => ({
   edges: state.edges,
   getNodeID: state.getNodeID,
   addNode: state.addNode,
+  pendingAddType: state.pendingAddType,
+  clearPendingAdd: state.clearPendingAdd,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
@@ -63,6 +66,8 @@ const PipelineCanvas = () => {
     edges,
     getNodeID,
     addNode,
+    pendingAddType,
+    clearPendingAdd,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -93,6 +98,21 @@ const PipelineCanvas = () => {
     },
     [reactFlowInstance, getNodeID, addNode]
   );
+
+  // Click-to-add: toolbar chips set pendingAddType; drop it at the
+  // center of the visible canvas (slightly jittered so repeats don't stack).
+  useEffect(() => {
+    if (!pendingAddType || !reactFlowInstance || !reactFlowWrapper.current) return;
+    const bounds = reactFlowWrapper.current.getBoundingClientRect();
+    const jitter = () => (Math.random() - 0.5) * 80;
+    const position = reactFlowInstance.project({
+      x: bounds.width / 2 + jitter(),
+      y: bounds.height / 2 + jitter(),
+    });
+    const id = getNodeID(pendingAddType);
+    addNode({ id, type: pendingAddType, position, data: { id, nodeType: pendingAddType } });
+    clearPendingAdd();
+  }, [pendingAddType, reactFlowInstance, getNodeID, addNode, clearPendingAdd]);
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
@@ -211,6 +231,7 @@ const PipelineCanvas = () => {
         onDrop={onDrop}
         onDragOver={onDragOver}
         onInit={setReactFlowInstance}
+        onEdgeDoubleClick={(_, edge) => deleteElements({ edges: [edge] })}
         nodeTypes={nodeTypes}
         proOptions={proOptions}
         snapGrid={[gridSize, gridSize]}
@@ -233,7 +254,7 @@ const PipelineCanvas = () => {
           <div className="vs-empty-arrow">▲</div>
           <div className="vs-empty-title">INSERT NODE TO BEGIN</div>
           <div className="vs-empty-sub">
-            drag a block · or press <span className="vs-kbd">⌘K</span>
+            drag or click a block above · or press <span className="vs-kbd">{MOD_K}</span>
           </div>
         </div>
       )}

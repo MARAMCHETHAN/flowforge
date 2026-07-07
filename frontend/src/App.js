@@ -10,6 +10,10 @@ function App() {
       <PipelineUI />
       <SubmitButton />
       <LearnPanel />
+      <div className="vs-mobile-note">
+        📱 FlowForge needs drag-and-drop — open this page on a computer for
+        the full experience.
+      </div>
     </div>
   );
 }

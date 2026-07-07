@@ -58,6 +58,11 @@ export const useStore = create((set, get) => ({
   learnOpen: false,
   setLearnOpen: (open) => set({ learnOpen: open }),
 
+  // ── Click-to-add: toolbar chips ask the canvas to place a node ──
+  pendingAddType: null,
+  requestAddNode: (type) => set({ pendingAddType: type }),
+  clearPendingAdd: () => set({ pendingAddType: null }),
+
   // ── Execution run state (not persisted) ─────────────────
   // { [nodeId]: "running" | "executed" | "skipped" | "error" }
   runStatuses: {},

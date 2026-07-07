@@ -1916,3 +1916,45 @@ body::before {
 }
 
 .vs-story-line { margin-bottom: 4px; }
+
+/* ── Beginner UX pass ── */
+
+/* Larger, easier-to-grab connection dots */
+.react-flow__handle.vs-handle {
+  width: 14px;
+  height: 14px;
+}
+
+/* Friendly hint when a run produced no outputs */
+.vs-run-hint {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  border: 2px dashed var(--win-line);
+  padding: 8px 10px;
+  margin: 0;
+}
+
+/* Small-screen notice (drag-and-drop needs a pointer) */
+.vs-mobile-note {
+  display: none;
+}
+@media (max-width: 820px) {
+  .vs-mobile-note {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--butter);
+    color: var(--text);
+    border-bottom: 2px solid var(--win-border);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1.4;
+    padding: 8px 12px;
+    text-align: center;
+  }
+}
